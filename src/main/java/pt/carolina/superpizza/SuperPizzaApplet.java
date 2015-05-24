@@ -1,7 +1,5 @@
 package pt.carolina.superpizza;
 
-import java.util.logging.Logger;
-
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -13,53 +11,51 @@ public class SuperPizzaApplet extends WizardApplet {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger LOG = Logger.getLogger(SuperPizzaApplet.class.getName());
+	private SuperPizzaModel model = new SuperPizzaModel();
 
-    private SuperPizzaModel model = new SuperPizzaModel();
+	@Override
+	public void init() {
+		super.init();
 
-    @Override
-    public void init() {
-        super.init();
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if (info.getName().equals("Nimbus")) {
+					UIManager.setLookAndFeel(info.getClassName());
+					SwingUtilities.updateComponentTreeUI(this);
+				}
+			}
+		} catch (Exception exception) {
+			System.err.println("Look and feel Nimbus cannot be installed");
+		}
 
-        try {
-            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if (info.getName().equals("Nimbus")) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    SwingUtilities.updateComponentTreeUI(this);
-                }
-            }
-        } catch (Exception exception) {
-            LOG.warning("Look and feel Nimbus cannot be installed");
-        }
+		registerWizardPanel(new SelectPizzaSizePanel(model));
+		registerWizardPanel(new PizzaSaucePanel(model));
+		registerWizardPanel(new IngredientsChoosePanel(model));
+		registerWizardPanel(new ResumeOrderPanel(model));
+		registerWizardPanel(new FinalPanel(model));
 
-        registerWizardPanel(new SelectPizzaSizePanel(model));
-        registerWizardPanel(new PizzaSaucePanel(model));
-        registerWizardPanel(new IngredientsChoosePanel(model));
-        registerWizardPanel(new ResumeOrderPanel(model));
-        registerWizardPanel(new FinalPanel(model));
+		setInitialPanel(SelectPizzaSizePanel.ID);
 
-        setInitialPanel(SelectPizzaSizePanel.ID);
+		setCurrentPanel(SelectPizzaSizePanel.ID, true);
 
-        setCurrentPanel(SelectPizzaSizePanel.ID, true);
+		setFinishedId(ResumeOrderPanel.ID);
 
-        setFinishedId(ResumeOrderPanel.ID);
+		//        setErrorPanel(ErrorPanel.ID);
 
-//        setErrorPanel(ErrorPanel.ID);
+	}
 
-    }
-
-    /**
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-    	SuperPizzaApplet applet = new SuperPizzaApplet();
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(applet);
-        frame.setSize(600, 400);
-        applet.init();
-        applet.start();
-        frame.setVisible(true);
-    }
+	/**
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		SuperPizzaApplet applet = new SuperPizzaApplet();
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(applet);
+		frame.setSize(700, 400);
+		applet.init();
+		applet.start();
+		frame.setVisible(true);
+	}
 }

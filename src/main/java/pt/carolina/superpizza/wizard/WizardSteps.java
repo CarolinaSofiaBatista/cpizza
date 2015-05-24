@@ -7,11 +7,11 @@ package pt.carolina.superpizza.wizard;
 
 public interface WizardSteps {
 
-    /**
-     * Update the current step in the wizard
-     * 
-     * @param step
-     */
-    void setCurrentStep(int step);
+	/**
+	 * Update the current step in the wizard
+	 * 
+	 * @param step
+	 */
+	void setCurrentStep(int step);
 
 }

@@ -1,26 +1,5 @@
 package pt.carolina.superpizza.wizard;
 
-/*
- * DSS - Digital Signature Services
- *
- * Copyright (C) 2011 European Commission, Directorate-General Internal Market and Services (DG MARKT), B-1049 Bruxelles/Brussel
- *
- * Developed by: 2011 ARHS Developments S.A. (rue Nicolas BovÃ© 2B, L-1253 Luxembourg) http://www.arhs-developments.com
- *
- * This file is part of the "DSS - Digital Signature Services" project.
- *
- * "DSS - Digital Signature Services" is free software: you can redistribute it and/or modify it under the terms of
- * the GNU Lesser General Public License as published by the Free Software Foundation, either version 2.1 of the
- * License, or (at your option) any later version.
- *
- * DSS is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
- * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License along with
- * "DSS - Digital Signature Services".  If not, see <http://www.gnu.org/licenses/>.
- */
-
-
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -41,7 +20,6 @@ import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 
@@ -58,400 +36,400 @@ import javax.swing.border.EmptyBorder;
 
 public class WizardApplet extends JApplet implements PropertyChangeListener {
 
-    private static final Logger LOG = Logger.getLogger(WizardApplet.class.getName());
+	private static final Logger LOG = Logger.getLogger(WizardApplet.class.getName());
 
-    private static final long serialVersionUID = 7272613449408050346L;
+	private static final long serialVersionUID = 7272613449408050346L;
 
-    /**
-     * Indicates that the 'Finish' button was pressed to close the dialog.
-     */
-    public static final int FINISH_RETURN_CODE = 0;
-    /**
-     * Indicates that the 'Cancel' button was pressed to close the dialog, or the user pressed the close box in the
-     * corner of the window.
-     */
-    public static final int CANCEL_RETURN_CODE = 1;
-    /**
-     * Indicates that the dialog closed due to an internal error.
-     */
-    public static final int ERROR_RETURN_CODE = 2;
-    /**
-     * The String-based action command for the 'Next' button.
-     */
-    public static final String NEXT_BUTTON_ACTION_COMMAND = "NextButtonActionCommand";
-    /**
-     * The String-based action command for the 'Back' button.
-     */
-    public static final String BACK_BUTTON_ACTION_COMMAND = "BackButtonActionCommand";
-    /**
-     * The String-based action command for the 'Cancel' button.
-     */
-    public static final String CANCEL_BUTTON_ACTION_COMMAND = "CancelButtonActionCommand";
-    // The i18n text used for the buttons. Loaded from a property resource file.
-    static String BACK_TEXT = "BACK";
-    static String NEXT_TEXT = "NEXT";
-    static String FINISH_TEXT = "FINISH";
-    static String CANCEL_TEXT = "CANCEL";
-    // The image icons used for the buttons. Filenames are loaded from a property resource file.
-    static Icon BACK_ICON;
-    static Icon NEXT_ICON;
-    static Icon FINISH_ICON;
-    static Icon CANCEL_ICON;
-    private WizardModel wizardModel;
-    private WizardController wizardController;
-    private JPanel cardPanel;
-    private CardLayout cardLayout;
-    private JButton backButton;
-    private JButton nextButton;
-    private JButton cancelButton;
-    private int returnCode;
-    private String initialPanel;
-    private String errorPanel;
-    private WizardSteps stepsProgression;
+	/**
+	 * Indicates that the 'Finish' button was pressed to close the dialog.
+	 */
+	public static final int FINISH_RETURN_CODE = 0;
+	/**
+	 * Indicates that the 'Cancel' button was pressed to close the dialog, or the user pressed the close box in the
+	 * corner of the window.
+	 */
+	public static final int CANCEL_RETURN_CODE = 1;
+	/**
+	 * Indicates that the dialog closed due to an internal error.
+	 */
+	public static final int ERROR_RETURN_CODE = 2;
+	/**
+	 * The String-based action command for the 'Next' button.
+	 */
+	public static final String NEXT_BUTTON_ACTION_COMMAND = "NextButtonActionCommand";
+	/**
+	 * The String-based action command for the 'Back' button.
+	 */
+	public static final String BACK_BUTTON_ACTION_COMMAND = "BackButtonActionCommand";
+	/**
+	 * The String-based action command for the 'Cancel' button.
+	 */
+	public static final String CANCEL_BUTTON_ACTION_COMMAND = "CancelButtonActionCommand";
+	static String BACK_TEXT = "BACK";
+	static String NEXT_TEXT = "NEXT";
+	static String FINISH_TEXT = "FINISH";
+	static String CANCEL_TEXT = "RESTART";
+	static Icon BACK_ICON;
+	static Icon NEXT_ICON;
+	static Icon FINISH_ICON;
+	static Icon CANCEL_ICON;
+	private WizardModel wizardModel;
+	private WizardController wizardController;
+	private JPanel cardPanel;
+	private CardLayout cardLayout;
+	private JButton backButton;
+	private JButton nextButton;
+	private JButton cancelButton;
+	private int returnCode;
+	private String initialPanel;
+	private String errorPanel;
+	private WizardSteps stepsProgression;
 
-    /**
-     * Set the progression in the current wizard
-     * 
-     * @param step
-     */
-    public void setStepsProgression(int step) {
-        if (stepsProgression != null) {
-            stepsProgression.setCurrentStep(step);
-        }
-    }
+	/**
+	 * Set the progression in the current wizard
+	 * 
+	 * @param step
+	 */
+	public void setStepsProgression(int step) {
+		if (stepsProgression != null) {
+			stepsProgression.setCurrentStep(step);
+		}
+	}
 
-    /**
-     * 
-     * @param errorPanel
-     */
-    public void setErrorPanel(String errorPanel) {
-        this.errorPanel = errorPanel;
-    }
+	/**
+	 * 
+	 * @param errorPanel
+	 */
+	public void setErrorPanel(String errorPanel) {
+		this.errorPanel = errorPanel;
+	}
 
-    @Override
-    public void init() {
-        try {
-            BACK_ICON = new ImageIcon(this.getClass().getResource("wizard/arrow_left.png"));
-            NEXT_ICON = new ImageIcon(this.getClass().getResource("wizard/arrow_right.png"));
-            CANCEL_ICON = new ImageIcon(this.getClass().getResource("wizard/cancel.png"));
-            FINISH_ICON = new ImageIcon(this.getClass().getResource("wizard/ok.png"));
-        } catch (MissingResourceException mre) {
-            throw new RuntimeException(mre);
-        }
-        wizardModel = new WizardModel();
-        initComponents();
-    }
+	@Override
+	public void init() {
+		try {
+			BACK_ICON = new ImageIcon(getImage("arrow_left.png"));
+			NEXT_ICON = new ImageIcon(getImage("arrow_right.png"));
+			CANCEL_ICON = new ImageIcon(getImage("cancel.png"));
+			FINISH_ICON = new ImageIcon(getImage("ok.png"));
+		} catch (MissingResourceException mre) {
+			throw new RuntimeException(mre);
+		}
+		wizardModel = new WizardModel();
+		initComponents();
+	}
 
-    /**
-     * Returns the current model of the wizard dialog.
-     * 
-     * @return A WizardModel instance, which serves as the model for the wizard dialog.
-     */
-    public WizardModel getModel() {
-        return wizardModel;
-    }
+	/**
+	 * Returns the current model of the wizard dialog.
+	 * 
+	 * @return A WizardModel instance, which serves as the model for the wizard dialog.
+	 */
+	public WizardModel getModel() {
+		return wizardModel;
+	}
 
-    /**
-     * Add a Component as a panel for the wizard dialog by registering its WizardPanelDescriptor object. Each panel is
-     * identified by a unique Object-based identifier (often a String), which can be used by the setCurrentPanel()
-     * method to display the panel at runtime.
-     * 
-     * @param panel The WizardPanelDescriptor object which contains helpful information about the panel.
-     */
-    public void registerWizardPanel(AbstractWizardPanel panel) {
+	/**
+	 * Add a Component as a panel for the wizard dialog by registering its WizardPanelDescriptor object. Each panel is
+	 * identified by a unique Object-based identifier (often a String), which can be used by the setCurrentPanel()
+	 * method to display the panel at runtime.
+	 * 
+	 * @param panel The WizardPanelDescriptor object which contains helpful information about the panel.
+	 */
+	public void registerWizardPanel(AbstractWizardPanel panel) {
 
-        // Add the incoming panel to our JPanel display that is managed by
-        // the CardLayout layout manager.
+		// Add the incoming panel to our JPanel display that is managed by
+		// the CardLayout layout manager.
+		cardPanel.add(panel, panel.getPanelDescriptorIdentifier());
 
-        cardPanel.add(panel, panel.getPanelDescriptorIdentifier());
+		// Set a callback to the current wizard.
+		panel.setWizard(this);
 
-        // Set a callback to the current wizard.
+		// Place a reference to it in the model.
+		wizardModel.registerPanel(panel.getPanelDescriptorIdentifier(), panel);
 
-        panel.setWizard(this);
+	}
 
-        // Place a reference to it in the model.
+	/**
+	 * @param initialPanel the initialPanel to set
+	 */
+	public void setInitialPanel(String initialPanel) {
+		this.initialPanel = initialPanel;
+	}
 
-        wizardModel.registerPanel(panel.getPanelDescriptorIdentifier(), panel);
+	/**
+	 * @return the initialPanel
+	 */
+	public String getInitialPanel() {
+		return initialPanel;
+	}
 
-    }
+	/**
+	 * Displays the panel identified by the object passed in. This is the same Object-based identified used when
+	 * registering the panel.
+	 * 
+	 * @param id The Object-based identifier of the panel to be displayed.
+	 */
+	public void setCurrentPanel(final Object id, final boolean skipForward) {
 
-    /**
-     * @param initialPanel the initialPanel to set
-     */
-    public void setInitialPanel(String initialPanel) {
-        this.initialPanel = initialPanel;
-    }
+		WaitingGlassPanel waitingGlassPanel = new WaitingGlassPanel();
+		waitingGlassPanel.setVisible(true);
+		getRootPane().setGlassPane(waitingGlassPanel);
+		getRootPane().getGlassPane().setVisible(true);
 
-    /**
-     * @return the initialPanel
-     */
-    public String getInitialPanel() {
-        return initialPanel;
-    }
+		SwingWorker worker = new SwingWorker() {
+			@Override
+			protected Object doInBackground() throws Exception {
 
-    /**
-     * Displays the panel identified by the object passed in. This is the same Object-based identified used when
-     * registering the panel.
-     * 
-     * @param id The Object-based identifier of the panel to be displayed.
-     */
-    public void setCurrentPanel(final Object id, final boolean skipForward) {
+				try {
+					boolean forwrd = true;
+					WizardPage oldPanelDescriptor = wizardModel.getCurrentPanelDescriptor();
+					if (oldPanelDescriptor != null) {
+						if(!oldPanelDescriptor.aboutToHidePanel()){
+							forwrd = false;
+						}
+					}
 
-        WaitingGlassPanel waitingGlassPanel = new WaitingGlassPanel();
-        waitingGlassPanel.setVisible(true);
-        getRootPane().setGlassPane(waitingGlassPanel);
-        getRootPane().getGlassPane().setVisible(true);
+					if(forwrd){
+						wizardModel.setCurrentPanel(id);
+						if ((wizardModel.getCurrentPanelDescriptor()).skipPanel()) {
+							if (skipForward) {
+								setCurrentPanel((wizardModel.getCurrentPanelDescriptor()).getNextPanelDescriptor(),
+										skipForward);
+							} else {
+								setCurrentPanel((wizardModel.getCurrentPanelDescriptor()).getBackPanelDescriptor(),
+										skipForward);
+							}
+						} else {
+							(wizardModel.getCurrentPanelDescriptor()).aboutToDisplayPanel();
+							cardLayout.show(cardPanel, id.toString());
+							(wizardModel.getCurrentPanelDescriptor()).displayingPanel();
+							wizardModel.setException(null);
 
-        SwingWorker worker = new SwingWorker() {
-            @Override
-            protected Object doInBackground() throws Exception {
+						}
+					}
+				} catch (Exception ex) {
+					if (errorPanel != null) {
+						LOG.log(Level.SEVERE, "Error while setting new panel, displaying error panel", ex);
+						wizardModel.setException(ex);
+						setCurrentPanel(errorPanel, skipForward);
+					} else {
+						LOG.log(Level.SEVERE, "Error while setting new panel", ex);
+					}
+				} finally {
+					getRootPane().getGlassPane().setVisible(false);
+				}
+				return null;
+			}
+		};
 
-                try {
-                    WizardPage oldPanelDescriptor = wizardModel.getCurrentPanelDescriptor();
-                    if (oldPanelDescriptor != null) {
-                        oldPanelDescriptor.aboutToHidePanel();
-                    }
+		new Thread(worker).start();
+	}
 
-                    wizardModel.setCurrentPanel(id);
-                    if ((wizardModel.getCurrentPanelDescriptor()).skipPanel()) {
-                        if (skipForward) {
-                            setCurrentPanel((wizardModel.getCurrentPanelDescriptor()).getNextPanelDescriptor(),
-                                    skipForward);
-                        } else {
-                            setCurrentPanel((wizardModel.getCurrentPanelDescriptor()).getBackPanelDescriptor(),
-                                    skipForward);
-                        }
-                    } else {
-                        (wizardModel.getCurrentPanelDescriptor()).aboutToDisplayPanel();
-                        cardLayout.show(cardPanel, id.toString());
-                        (wizardModel.getCurrentPanelDescriptor()).displayingPanel();
-                        wizardModel.setException(null);
+	/**
+	 * Method used to listen for property change events from the model and update the dialog's graphical components as
+	 * necessary.
+	 * 
+	 * @param evt PropertyChangeEvent passed from the model to signal that one of its properties has changed value.
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
 
-                    }
-                } catch (Exception ex) {
-                    if (errorPanel != null) {
-                        LOG.log(Level.SEVERE, "Error while setting new panel, displaying error panel", ex);
-                        wizardModel.setException(ex);
-                        setCurrentPanel(errorPanel, skipForward);
-                    } else {
-                        LOG.log(Level.SEVERE, "Error while setting new panel", ex);
-                    }
-                } finally {
-                    getRootPane().getGlassPane().setVisible(false);
-                }
-                return null;
-            }
-        };
+		if (evt.getPropertyName().equals(WizardModel.CURRENT_PANEL_DESCRIPTOR_PROPERTY)) {
+			wizardController.resetButtonsToPanelRules();
+		} else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_TEXT_PROPERTY)) {
+			nextButton.setText(evt.getNewValue().toString());
+			nextButton.setMnemonic(evt.getNewValue().toString().charAt(0));
+		} else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_TEXT_PROPERTY)) {
+			backButton.setText(evt.getNewValue().toString());
+			backButton.setMnemonic(evt.getNewValue().toString().charAt(0));
+		} else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_TEXT_PROPERTY)) {
+			cancelButton.setText(evt.getNewValue().toString());
+			cancelButton.setMnemonic(evt.getNewValue().toString().charAt(0));
+		} else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_ENABLED_PROPERTY)) {
+			nextButton.setEnabled(((Boolean) evt.getNewValue()).booleanValue());
+		} else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_ENABLED_PROPERTY)) {
+			backButton.setEnabled(((Boolean) evt.getNewValue()).booleanValue());
+		} else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_ENABLED_PROPERTY)) {
+			cancelButton.setEnabled(((Boolean) evt.getNewValue()).booleanValue());
+		} else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_ICON_PROPERTY)) {
+			nextButton.setIcon((Icon) evt.getNewValue());
+		} else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_ICON_PROPERTY)) {
+			backButton.setIcon((Icon) evt.getNewValue());
+		} else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_ICON_PROPERTY)) {
+			cancelButton.setIcon((Icon) evt.getNewValue());
+		}
 
-        new Thread(worker).start();
-    }
+	}
 
-    /**
-     * Method used to listen for property change events from the model and update the dialog's graphical components as
-     * necessary.
-     * 
-     * @param evt PropertyChangeEvent passed from the model to signal that one of its properties has changed value.
-     */
-    public void propertyChange(PropertyChangeEvent evt) {
+	/**
+	 * Retrieves the last return code set by the dialog.
+	 * 
+	 * @return An integer that identifies how the dialog was closed. See the *_RETURN_CODE constants of this class for
+	 *         possible values.
+	 */
+	public int getReturnCode() {
+		return returnCode;
+	}
 
-        if (evt.getPropertyName().equals(WizardModel.CURRENT_PANEL_DESCRIPTOR_PROPERTY)) {
-            wizardController.resetButtonsToPanelRules();
-        } else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_TEXT_PROPERTY)) {
-            nextButton.setText(evt.getNewValue().toString());
-            nextButton.setMnemonic(evt.getNewValue().toString().charAt(0));
-        } else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_TEXT_PROPERTY)) {
-            backButton.setText(evt.getNewValue().toString());
-            backButton.setMnemonic(evt.getNewValue().toString().charAt(0));
-        } else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_TEXT_PROPERTY)) {
-            cancelButton.setText(evt.getNewValue().toString());
-            cancelButton.setMnemonic(evt.getNewValue().toString().charAt(0));
-        } else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_ENABLED_PROPERTY)) {
-            nextButton.setEnabled(((Boolean) evt.getNewValue()).booleanValue());
-        } else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_ENABLED_PROPERTY)) {
-            backButton.setEnabled(((Boolean) evt.getNewValue()).booleanValue());
-        } else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_ENABLED_PROPERTY)) {
-            cancelButton.setEnabled(((Boolean) evt.getNewValue()).booleanValue());
-        } else if (evt.getPropertyName().equals(WizardModel.NEXT_FINISH_BUTTON_ICON_PROPERTY)) {
-            nextButton.setIcon((Icon) evt.getNewValue());
-        } else if (evt.getPropertyName().equals(WizardModel.BACK_BUTTON_ICON_PROPERTY)) {
-            backButton.setIcon((Icon) evt.getNewValue());
-        } else if (evt.getPropertyName().equals(WizardModel.CANCEL_BUTTON_ICON_PROPERTY)) {
-            cancelButton.setIcon((Icon) evt.getNewValue());
-        }
+	/**
+	 * Mirrors the WizardModel method of the same name.
+	 * 
+	 * @return A boolean indicating if the button is enabled.
+	 */
+	public boolean getBackButtonEnabled() {
+		return wizardModel.getBackButtonEnabled().booleanValue();
+	}
 
-    }
+	/**
+	 * Mirrors the WizardModel method of the same name.
+	 * 
+	 * @param newValue The new enabled status of the button.
+	 */
+	public void setBackButtonEnabled(boolean newValue) {
+		wizardModel.setBackButtonEnabled(new Boolean(newValue));
+	}
 
-    /**
-     * Retrieves the last return code set by the dialog.
-     * 
-     * @return An integer that identifies how the dialog was closed. See the *_RETURN_CODE constants of this class for
-     *         possible values.
-     */
-    public int getReturnCode() {
-        return returnCode;
-    }
+	/**
+	 * Mirrors the WizardModel method of the same name.
+	 * 
+	 * @return A boolean indicating if the button is enabled.
+	 */
+	public boolean getNextFinishButtonEnabled() {
+		return wizardModel.getNextFinishButtonEnabled().booleanValue();
+	}
 
-    /**
-     * Mirrors the WizardModel method of the same name.
-     * 
-     * @return A boolean indicating if the button is enabled.
-     */
-    public boolean getBackButtonEnabled() {
-        return wizardModel.getBackButtonEnabled().booleanValue();
-    }
+	/**
+	 * Mirrors the WizardModel method of the same name.
+	 * 
+	 * @param newValue The new enabled status of the button.
+	 */
+	public void setNextFinishButtonEnabled(boolean newValue) {
+		wizardModel.setNextFinishButtonEnabled(new Boolean(newValue));
+	}
 
-    /**
-     * Mirrors the WizardModel method of the same name.
-     * 
-     * @param newValue The new enabled status of the button.
-     */
-    public void setBackButtonEnabled(boolean newValue) {
-        wizardModel.setBackButtonEnabled(new Boolean(newValue));
-    }
+	/**
+	 * Mirrors the WizardModel method of the same name.
+	 * 
+	 * @return A boolean indicating if the button is enabled.
+	 */
+	public boolean getCancelButtonEnabled() {
+		return wizardModel.getCancelButtonEnabled().booleanValue();
+	}
 
-    /**
-     * Mirrors the WizardModel method of the same name.
-     * 
-     * @return A boolean indicating if the button is enabled.
-     */
-    public boolean getNextFinishButtonEnabled() {
-        return wizardModel.getNextFinishButtonEnabled().booleanValue();
-    }
+	/**
+	 * Mirrors the WizardModel method of the same name.
+	 * 
+	 * @param newValue The new enabled status of the button.
+	 */
+	public void setCancelButtonEnabled(boolean newValue) {
+		wizardModel.setCancelButtonEnabled(new Boolean(newValue));
+	}
 
-    /**
-     * Mirrors the WizardModel method of the same name.
-     * 
-     * @param newValue The new enabled status of the button.
-     */
-    public void setNextFinishButtonEnabled(boolean newValue) {
-        wizardModel.setNextFinishButtonEnabled(new Boolean(newValue));
-    }
+	/**
+	 * This method initializes the components for the wizard dialog: it creates a JDialog as a CardLayout panel
+	 * surrounded by a small amount of space on each side, as well as three buttons at the bottom.
+	 */
+	private void initComponents() {
 
-    /**
-     * Mirrors the WizardModel method of the same name.
-     * 
-     * @return A boolean indicating if the button is enabled.
-     */
-    public boolean getCancelButtonEnabled() {
-        return wizardModel.getCancelButtonEnabled().booleanValue();
-    }
+		setBackground(Color.WHITE);
 
-    /**
-     * Mirrors the WizardModel method of the same name.
-     * 
-     * @param newValue The new enabled status of the button.
-     */
-    public void setCancelButtonEnabled(boolean newValue) {
-        wizardModel.setCancelButtonEnabled(new Boolean(newValue));
-    }
+		wizardModel.addPropertyChangeListener(this);
+		wizardController = new WizardController(this);
 
-    /**
-     * This method initializes the components for the wizard dialog: it creates a JDialog as a CardLayout panel
-     * surrounded by a small amount of space on each side, as well as three buttons at the bottom.
-     */
-    private void initComponents() {
+		getContentPane().setLayout(new BorderLayout());
+		getContentPane().setBackground(Color.WHITE);
 
-        setBackground(Color.WHITE);
+		// Create the outer wizard panel, which is responsible for three buttons:
+		// Next, Back, and Cancel. It is also responsible a JPanel above them that
+		// uses a CardLayout layout manager to display multiple panels in the
+		// same spot.
 
-        wizardModel.addPropertyChangeListener(this);
-        wizardController = new WizardController(this);
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setBackground(Color.WHITE);
 
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().setBackground(Color.WHITE);
+		JSeparator separator = new JSeparator();
+		Box buttonBox = new Box(BoxLayout.X_AXIS);
 
-        // Create the outer wizard panel, which is responsible for three buttons:
-        // Next, Back, and Cancel. It is also responsible a JPanel above them that
-        // uses a CardLayout layout manager to display multiple panels in the
-        // same spot.
+		cardPanel = new JPanel();
+		cardPanel.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
+		cardPanel.setBackground(Color.WHITE);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(Color.WHITE);
+		cardLayout = new CardLayout();
+		cardPanel.setLayout(cardLayout);
 
-        JSeparator separator = new JSeparator();
-        Box buttonBox = new Box(BoxLayout.X_AXIS);
+		backButton = new JButton(new ImageIcon("com/nexes/wizard/backIcon.gif"));
+		nextButton = new JButton();
+		cancelButton = new JButton();
 
-        cardPanel = new JPanel();
-        cardPanel.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
-        cardPanel.setBackground(Color.WHITE);
+		backButton.setActionCommand(BACK_BUTTON_ACTION_COMMAND);
+		backButton.setName("back");
+		nextButton.setActionCommand(NEXT_BUTTON_ACTION_COMMAND);
+		nextButton.setName("next");
+		cancelButton.setActionCommand(CANCEL_BUTTON_ACTION_COMMAND);
+		cancelButton.setName("cancel");
 
-        cardLayout = new CardLayout();
-        cardPanel.setLayout(cardLayout);
+		backButton.addActionListener(wizardController);
+		nextButton.addActionListener(wizardController);
+		cancelButton.addActionListener(wizardController);
 
-        backButton = new JButton(new ImageIcon("com/nexes/wizard/backIcon.gif"));
-        nextButton = new JButton();
-        cancelButton = new JButton();
+		buttonPanel.setLayout(new BorderLayout());
+		buttonPanel.add(separator, BorderLayout.NORTH);
 
-        backButton.setActionCommand(BACK_BUTTON_ACTION_COMMAND);
-        backButton.setName("back");
-        nextButton.setActionCommand(NEXT_BUTTON_ACTION_COMMAND);
-        nextButton.setName("next");
-        cancelButton.setActionCommand(CANCEL_BUTTON_ACTION_COMMAND);
-        cancelButton.setName("cancel");
+		buttonBox.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
+		buttonBox.add(backButton);
+		buttonBox.add(Box.createHorizontalStrut(10));
+		buttonBox.add(nextButton);
+		buttonBox.add(Box.createHorizontalStrut(30));
+		buttonBox.add(cancelButton);
 
-        backButton.addActionListener(wizardController);
-        nextButton.addActionListener(wizardController);
-        cancelButton.addActionListener(wizardController);
+		// buttonPanel.add(stepsProgression, BorderLayout.CENTER);
+		// getContentPane().add(stepsProgression, BorderLayout.NORTH);
 
-        buttonPanel.setLayout(new BorderLayout());
-        buttonPanel.add(separator, BorderLayout.NORTH);
+		buttonPanel.add(buttonBox, BorderLayout.SOUTH);
 
-        buttonBox.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));
-        buttonBox.add(backButton);
-        buttonBox.add(Box.createHorizontalStrut(10));
-        buttonBox.add(nextButton);
-        buttonBox.add(Box.createHorizontalStrut(30));
-        buttonBox.add(cancelButton);
+		getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+		getContentPane().add(cardPanel, BorderLayout.CENTER);
 
-        // buttonPanel.add(stepsProgression, BorderLayout.CENTER);
-        // getContentPane().add(stepsProgression, BorderLayout.NORTH);
+	}
 
-        buttonPanel.add(buttonBox, BorderLayout.SOUTH);
+	/**
+	 * Set the ID of the last page of the wizard
+	 * 
+	 * @param id
+	 */
+	public void setFinishedId(Object id) {
+		wizardController.setFinishedId(id);
+	}
 
-        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-        getContentPane().add(cardPanel, BorderLayout.CENTER);
+	/**
+	 * Set the component that display the progression in the wizard
+	 * 
+	 * @param stepsProgression
+	 */
+	public void setStepsProgression(WizardSteps stepsProgression) {
+		removeStepsProgression();
+		this.stepsProgression = stepsProgression;
+		getContentPane().add((JPanel) stepsProgression, BorderLayout.NORTH);
+	}
 
-    }
+	/**
+	 * Remove the component that display the progression in the wizard
+	 */
+	public void removeStepsProgression() {
+		if (stepsProgression != null) {
+			getContentPane().remove((JPanel) this.stepsProgression);
+			stepsProgression = null;
+		}
+	}
 
-    /**
-     * Set the ID of the last page of the wizard
-     * 
-     * @param id
-     */
-    public void setFinishedId(Object id) {
-        wizardController.setFinishedId(id);
-    }
+	private URL getImage(String name) {
+		return this.getClass().getResource("wizard/" + name);
+	}
 
-    /**
-     * Set the component that display the progression in the wizard
-     * 
-     * @param stepsProgression
-     */
-    public void setStepsProgression(WizardSteps stepsProgression) {
-        removeStepsProgression();
-        this.stepsProgression = stepsProgression;
-        getContentPane().add((JPanel) stepsProgression, BorderLayout.NORTH);
-    }
-
-    /**
-     * Remove the component that display the progression in the wizard
-     */
-    public void removeStepsProgression() {
-        if (stepsProgression != null) {
-            getContentPane().remove((JPanel) this.stepsProgression);
-            stepsProgression = null;
-        }
-    }
-
-    private URL getImage(String name) {
-        return this.getClass().getResource("/eu/europa/ec/markt/dss/applet/wizard/" + name);
-    }
-
-    /**
-     * If the user presses the close box on the dialog's window, treat it as a cancel.
-     * 
-     * @param e The event passed in from AWT.
-     */
-    public void windowClosing(WindowEvent e) {
-        returnCode = CANCEL_RETURN_CODE;
-    }
+	/**
+	 * If the user presses the close box on the dialog's window, treat it as a cancel.
+	 * 
+	 * @param e The event passed in from AWT.
+	 */
+	public void windowClosing(WindowEvent e) {
+		returnCode = CANCEL_RETURN_CODE;
+	}
 }

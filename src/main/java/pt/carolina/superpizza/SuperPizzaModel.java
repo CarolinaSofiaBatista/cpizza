@@ -4,8 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Pizza Model
+ * 
+ * @author carolina
+ *
+ */
 public class SuperPizzaModel {
-	
+
 	public final static String SMALL = "Small";
 	public final static String MEDIUM = "Medium";
 	public final static String BIG = "Big";
@@ -16,7 +22,7 @@ public class SuperPizzaModel {
 	private String sauce = null;
 	private List<String> ingredients = new ArrayList<String>();
 	private HashMap<String, Integer> pricePlan = new HashMap<String, Integer>();
-	
+
 	public SuperPizzaModel() {
 		pricePlan.put(SMALL, 5);
 		pricePlan.put(MEDIUM, 10);
@@ -24,53 +30,100 @@ public class SuperPizzaModel {
 		pricePlan.put(INGREDIENT, 1);
 		pricePlan.put(SAUCE, 2);
 	}
-	
+
+	/**
+	 * gets Pizza size
+	 * @return {@link String}
+	 */
 	public String getPizzaSize() {
 		return pizzaSize;
 	}
+
+	/**
+	 * sets selected pizza size
+	 * 
+	 * @param pizzaSize
+	 */
 	public void setPizzaSize(String pizzaSize) {
 		this.pizzaSize = pizzaSize;
 	}
+
+	/**
+	 * gets Sauce
+	 * @return {@link String}
+	 */
 	public String getSauce() {
 		return sauce;
 	}
+
+	/**
+	 * sets selected Sauce 
+	 * @param sauce
+	 */
 	public void setSauce(String sauce) {
 		this.sauce = sauce;
 	}
+
+	/**
+	 * gets selected ingredients list
+	 * @return {@link List}
+	 */
 	public List<String> getIngredients() {
 		return ingredients;
 	}
-	
+
+	/**
+	 * sets selected ingredients {@link List}
+	 * @param ingredients
+	 */
 	public void setIngredients(List<String> ingredients) {
 		this.ingredients = ingredients;
 	}
-	
-	
+
+	/**
+	 * gets pizza size name
+	 * @return {@link String}
+	 */
 	public String getPizzaSizeName(){
-		return "Pizza Size: " + pizzaSize;
+		return "<html><b>Pizza Size:</b> " + pizzaSize + "</html>";
 	}
-	
+
+	/**
+	 * gets Ingredients display names
+	 * @return {@link String}
+	 */
 	public String getIngredientsName() {
-		StringBuffer ing = new StringBuffer("Ingredients: ");
-		for (String ingredient : ingredients) {
-			ing.append(ingredient).append(", ");
-		}
+		StringBuffer ing = new StringBuffer("<html><b>Ingredients:</b> ");
+		String finalText = "";
 		if(ingredients.isEmpty()){
-			return ing.toString();
+			finalText = ing.toString();
 		}else{
-			return ing.substring(0, ing.lastIndexOf(",") - 1) ;
+			for (String ingredient : ingredients) {
+				ing.append(ingredient).append(", ");
+			}
+			finalText = ing.substring(0, ing.lastIndexOf(",")) ;
 		}
+		return finalText + "</html>";
 	}
-	
+
+	/**
+	 * gets Sauce display name
+	 * @return {@link String}
+	 */
 	public String getSauceName() {
-		return "Sauce: " + sauce;
+		return "<html><b>Sauce:</b> " + sauce + "</html>";
 	}
-	
+
+	/**
+	 * computes pizza price based on selected options.
+	 * 
+	 * @return {@link String}
+	 */
 	public String getPrice(){
 		Integer total = 0;
 		total += pricePlan.get(getPizzaSize());
 		total += pricePlan.get(INGREDIENT) * getIngredients().size();
 		total += pricePlan.get(SAUCE);
-		return total + " €";
+		return "Price: " + total + "€";
 	}
 }
