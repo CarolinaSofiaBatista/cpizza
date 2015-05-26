@@ -12,9 +12,9 @@ import java.util.List;
  */
 public class SuperPizzaModel {
 
-	public final static String SMALL = "Small";
-	public final static String MEDIUM = "Medium";
-	public final static String BIG = "Big";
+	public final String SMALL = "Small";
+	public final String MEDIUM = "Medium";
+	public final String BIG = "Big";
 	public final static String SAUCE = "Sauce";
 	public final static String INGREDIENT = "Ingredient";
 
